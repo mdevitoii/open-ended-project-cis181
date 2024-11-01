@@ -1,7 +1,7 @@
 # Michael DeVito
 # archery.py
-# An archery program designed for Theresa <3
-# Version 0.9
+# An archery program designed for Theresa
+# Version 1.0
 
 import time
 import math
