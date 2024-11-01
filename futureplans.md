@@ -1,12 +1,12 @@
 # Version 1
-~~ welcome screen ~~
-~~ draw target ~~
-~~ 3 shots ~~
-~~ calculate points ~~
+~~welcome screen~~
+~~draw target~~
+~~3 shots~~
+~~calculate points~~
 # Version 2 
-~~ timer DONE ~~
-~~ 5 shots DONE ~~
-~~ Show a visual of how many shots left ~~
+~~timer DONE~~
+~~5 shots DONE~~
+~~Show a visual of how many shots left~~
 # Version 3
     - Settings Screen
     - How-To-Play with Instructions
