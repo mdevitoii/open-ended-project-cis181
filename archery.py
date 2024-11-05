@@ -9,43 +9,28 @@ import settings
 
 # Initialize the window
 win = GraphWin("Archery Game", 500, 500)
-win.setCoords(0,0,50,50)
+win.setCoords(0,0,500,500)
 win.setBackground("green")
 
 # Initialize all archery objects
-openingText = Text(Point(25,45), "Theresa's Archery Game")
+openingText = Text(Point(250,450), "Theresa's Archery Game")
 openingText.setSize(30)
-startButton = Rectangle(Point(15,15),Point(35,25))
+startButton = Rectangle(Point(150,150),Point(350,250))
 startButton.setFill("light green")
-startText = Text(Point(25, 20), "Click to Start")
+startText = Text(Point(200, 200), "Click to Start")
 startText.setFill("Black")
-startCountdownText = Text(Point(25,30), "Begin in ... 5")
+startCountdownText = Text(Point(250,300), "Begin in ... 5")
 startCountdownText.setSize(30)
 startCountdownText.setFill("Black")
-timerSquare = Rectangle(Point(45,45), Point(50,50))
+timerSquare = Rectangle(Point(450,450), Point(500,500))
 timerSquare.setFill("Brown")
-timerCountdown = Text(Point(47.5, 47.5), "0")
+timerCountdown = Text(Point(470.5, 470.5), "0")
 timerCountdown.setFill("White")
 timerCountdown.setSize(25)
-center = Point(25,25)
-
-
-
-# initialize other variables
+center = Point(250,250)
 timeout = 5  # default timer, can change
 score = 0
 rounds = 3
-
-# initialize sprites (images)
-
-def is_inside_circle(click_point, circle): # checks if a clicked point is inside a circle
-    circle_center = circle.getCenter()
-    radius = circle.getRadius()
-    distance = math.sqrt((click_point.x - circle_center.x)**2 + (click_point.y - circle_center.y)**2)
-    return distance <= radius
-
-# for i in range(1,rounds+1):
-#   arrows[i].draw(win)
 
 def clear(win): # clears the window
     for item in win.items[:]:
@@ -66,14 +51,33 @@ def countToStart(): # function for countdown before start
     time.sleep(1)
     startCountdownText.undraw()
 
-def makeCircle(color,radius):
-    circle = Circle(center,radius)
-    circle.setFill(color)
-    circle.setOutline("black")
-    circle.draw(win)
-    return circle
+def pointCalculation(click):
+    global target
+    print(f"Mouse was clicked at ({click.x}, {click.y})") # troubeshooting only
+    # the following 4 lines might be replaced with an image drawing that shows an arrow in the target. idk maybe
+    x,y = round(click.x,0), round(click.y,0)
+    spotClicked = Point(x,y)
+    spotClicked.setFill("black")
+    spotClicked.draw(win) # this line ends the code that may be replaced
 
 
+def game():
+    timerCountdown.setText(timeout) # sets timer text to timeout time 
+    time.sleep(0.5)
+    start_time = time.time()
+    click = None
+    global score
+    while time.time() - start_time < timeout:
+        click = win.checkMouse()
+        remaining_time = int(timeout - (time.time() - start_time))
+        timerCountdown.setText(f"{remaining_time}")
+        time.sleep(0.1)
+        if click:
+            break
+    if click:
+        pointCalculation(click)
+    else:
+        print("Program was not clicked in time")
 
 def main():
     # Welcome screen
@@ -91,63 +95,40 @@ def main():
 
 
     while True:
-        try:
+        # try:
             mouse = win.getMouse()
             x = int(mouse.getX())
             y = int(mouse.getY())
-            if (x >= 15) & (x <= 35):
-                if (y >= 15) & (y <= 25):
+            if (x >= 150) & (x <= 350):
+                if (y >= 150) & (y <= 250):
                     break
-        except GraphicsError:
-            win.close()
-            print("Window closed prematurely.")
-            break
-    try:
-        win.setBackground("light green")
-        openingText.undraw()
-        startText.undraw()
-        startButton.undraw()
-        countToStart()
-        rounds = 3
-        timerSquare.draw(win)
-        timerCountdown.draw(win)
-        target.draw(win)
-        for i in range(1,rounds+1):
-            game()
-            arrows[i].undraw()
-    except:
-        print("Something went wrong. Please try again!")
-    
-
-def game():
-    timerCountdown.setText(timeout) # sets timer text to timeout time 
-    time.sleep(0.5)
-    start_time = time.time()
-    click = None
-    global score
-    while time.time() - start_time < timeout:
-        click = win.checkMouse()
-        remaining_time = int(timeout - (time.time() - start_time))
-        timerCountdown.setText(f"{remaining_time}")
-        time.sleep(0.1)
-        if click:
-            break
-    if click:
-        print(f"Mouse was clicked at ({click.x}, {click.y})")
-        x,y = round(click.x,0), round(click.y,0)
-        spotClicked = Point(x,y)
-        spotClicked.setFill("black")
-        spotClicked.draw(win)
-    else:
-        print("Program was not clicked in time")
-
-
-    
+        # except GraphicsError:
+            # win.close()
+            # print("Window closed prematurely.")
+            # break
+    # try:
+    win.setBackground("light green")
+    openingText.undraw()
+    startText.undraw()
+    startButton.undraw()
+    countToStart()
+    rounds = 3
+    timerSquare.draw(win)
+    timerCountdown.draw(win)
+    target.draw(win)
+    for i in range(1,rounds+1):
+        game()
+        arrows[i].undraw()
+    # except:
+        # print("Something went wrong. Please try again!")
+      
     
 # run the program!
 if __name__ == "__main__":
     main()
 
+
+# For Troubleshooting only
 try:
     win.getMouse()
 except GraphicsError:
@@ -178,3 +159,4 @@ except GraphicsError:
 # - Used Copilot for help with timer and distance function
 # - https://stackoverflow.com/questions/45517677/graphics-py-how-to-clear-the-window
 # - https://stackoverflow.com/questions/7165749/open-file-in-a-relative-location-in-python 
+# - https://improveyourarchery.com/target-size-calculator/ this might be useful
