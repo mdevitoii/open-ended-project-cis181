@@ -3,34 +3,35 @@
 # An archery program designed for Theresa
 # Version 1.0
 
-import time, math, os
+import time, math, os, settings
 from graphics import *
-import settings
 
-# Initialize the window
-win = GraphWin("Archery Game", 500, 500)
-win.setCoords(0,0,500,500)
-win.setBackground("green")
-
-# Initialize all archery objects
-openingText = Text(Point(250,450), "Theresa's Archery Game")
-openingText.setSize(30)
-startButton = Rectangle(Point(150,150),Point(350,250))
-startButton.setFill("light green")
-startText = Text(Point(200, 200), "Click to Start")
-startText.setFill("Black")
-startCountdownText = Text(Point(250,300), "Begin in ... 5")
-startCountdownText.setSize(30)
-startCountdownText.setFill("Black")
-timerSquare = Rectangle(Point(450,450), Point(500,500))
-timerSquare.setFill("Brown")
-timerCountdown = Text(Point(470.5, 470.5), "0")
-timerCountdown.setFill("White")
-timerCountdown.setSize(25)
-center = Point(250,250)
-timeout = 5  # default timer, can change
-score = 0
-rounds = 3
+def defineAll(): # Initialize EVERYTHING
+    global openingText, startButton, startText, startCountdownText, timerCountdown, timerSquare, center, timeout, rounds, target, score, currentDirectory, win
+    currentDirectory = os.path.dirname(__file__)
+    center = Point(250,250)
+    score = 0
+    rounds = 3
+    target = Image(center, (os.path.join(currentDirectory,"images/target.png")))
+    win = GraphWin("Archery Game", 500, 500)
+    win.setCoords(0,0,500,500)
+    win.setBackground("green")
+    win.setBackground("light blue")
+    openingText = Text(Point(250,450), "Theresa's Archery Game")
+    openingText.setSize(30)
+    startButton = Rectangle(Point(150,150),Point(350,250))
+    startButton.setFill("light green")
+    startText = Text(Point(200, 200), "Click to Start")
+    startText.setFill("Black")
+    startCountdownText = Text(Point(250,300), "Begin in ... 5")
+    startCountdownText.setSize(30)
+    startCountdownText.setFill("Black")
+    timerSquare = Rectangle(Point(450,450), Point(500,500))
+    timerSquare.setFill("Brown")
+    timerCountdown = Text(Point(470.5, 470.5), "0")
+    timerCountdown.setFill("White")
+    timerCountdown.setSize(25)
+    timeout = 5  # default timer, can change
 
 def clear(win): # clears the window
     for item in win.items[:]:
@@ -52,21 +53,57 @@ def countToStart(): # function for countdown before start
     startCountdownText.undraw()
 
 def pointCalculation(click):
-    global target
     print(f"Mouse was clicked at ({click.x}, {click.y})") # troubeshooting only
     # the following 4 lines might be replaced with an image drawing that shows an arrow in the target. idk maybe
     x,y = round(click.x,0), round(click.y,0)
     spotClicked = Point(x,y)
     spotClicked.setFill("black")
     spotClicked.draw(win) # this line ends the code that may be replaced
+    targetCenter = target.getAnchor()
+    targetX = targetCenter.getX()
+    targetY = targetCenter.getY()
+    distanceX = abs(x - targetX)
+    distanceY = abs(y - targetY)
+    print(f'dist x = {distanceX}')
+    print(f'dist y = {distanceY}')
+    distanceX, distanceY = int(distanceX), int(distanceY)
+    distance = math.sqrt((x - targetX)**2 + (y - targetY)**2)
+    print(distance)
+    distance = int(distance)
+    if distance <= 200 and distance >= 181:
+        print("white1, 1 point")
+    elif distance <= 180 and distance >= 161:
+        print("white2, 2 points")
+    elif distance <= 160 and distance >= 141:
+        print("black1, 3 points")
+    elif distance <= 140 and distance >= 121:
+        print("black2, 4 points")
+    elif distance <= 120 and distance >= 101:
+        print("blue1, 5 points")
+    elif distance <= 100 and distance >= 81:
+        print("blue2, 6 points")
+    elif distance <= 80 and distance >= 61:
+        print("red1, 7 points")
+    elif distance <= 60 and distance >= 41:
+        print("red2, 8 points")
+    elif distance <= 40 and distance >= 21:
+        print("yellow1, 9 points")
+    elif distance <= 20 and distance >= 10:
+        print("yellow2, 10 points")
+    elif distance <= 9 and distance >= 0:
+        print("bullseye! 10 points")
 
 
-def game():
+
+
+    
+
+
+def game(): # 1 round of game
     timerCountdown.setText(timeout) # sets timer text to timeout time 
     time.sleep(0.5)
     start_time = time.time()
     click = None
-    global score
     while time.time() - start_time < timeout:
         click = win.checkMouse()
         remaining_time = int(timeout - (time.time() - start_time))
@@ -79,16 +116,14 @@ def game():
     else:
         print("Program was not clicked in time")
 
-def main():
-    # Welcome screen
-    win.setBackground("light blue")
+def main(): # main method
+    defineAll()
+    '''
     openingText.draw(win)
     startButton.draw(win)
     startText.draw(win)
-    currentDirectory = os.path.dirname(__file__)
-    target = Image(center, (os.path.join(currentDirectory,"images/target.png")))
     arrows = dict()
-    global rounds
+    rounds = 3
     for i in range(1,rounds+1):
         arrows[i] = Image(Point(i * 2,45), (os.path.join(currentDirectory,"images/arrow.png")))
 
@@ -112,13 +147,14 @@ def main():
     startText.undraw()
     startButton.undraw()
     countToStart()
-    rounds = 3
+    '''
+    rounds = 20
     timerSquare.draw(win)
     timerCountdown.draw(win)
     target.draw(win)
     for i in range(1,rounds+1):
         game()
-        arrows[i].undraw()
+        # arrows[i].undraw() UNCOMMENT
     # except:
         # print("Something went wrong. Please try again!")
       
