@@ -7,7 +7,7 @@ import time, math, os, settings
 from graphics import *
 
 def defineAll(): # Initialize EVERYTHING
-    global openingText, startButton, startText, startCountdownText, timerCountdown, timerSquare, center, timeout, rounds, target, score, currentDirectory, win
+    global openingText, startButton, startText, startCountdownText, timerCountdown, timerSquare, center, timeout, rounds, target, score, currentDirectory, win, arrows
     currentDirectory = os.path.dirname(__file__)
     center = Point(250,250)
     score = 0
@@ -32,6 +32,9 @@ def defineAll(): # Initialize EVERYTHING
     timerCountdown.setFill("White")
     timerCountdown.setSize(25)
     timeout = 5  # default timer, can change
+    arrows = dict()
+    for i in range(1,rounds+1):
+        arrows[i] = Image(Point(i * 20,480), (os.path.join(currentDirectory,"images/arrow.png"))) # might need to make arrow.png larger
 
 def clear(win): # clears the window
     for item in win.items[:]:
@@ -50,10 +53,11 @@ def countToStart(): # function for countdown before start
     time.sleep(1)
     startCountdownText.setText("GO!")
     time.sleep(1)
-    startCountdownText.undraw()
+    clear(win)
 
 def pointCalculation(click):
-    print(f"Mouse was clicked at ({click.x}, {click.y})") # troubeshooting only
+    global score
+    # print(f"Mouse was clicked at ({click.x}, {click.y})") # troubeshooting only
     # the following 4 lines might be replaced with an image drawing that shows an arrow in the target. idk maybe
     x,y = round(click.x,0), round(click.y,0)
     spotClicked = Point(x,y)
@@ -64,42 +68,54 @@ def pointCalculation(click):
     targetY = targetCenter.getY()
     distanceX = abs(x - targetX)
     distanceY = abs(y - targetY)
-    print(f'dist x = {distanceX}')
-    print(f'dist y = {distanceY}')
+    # print(f'dist x = {distanceX}')
+    # print(f'dist y = {distanceY}')
     distanceX, distanceY = int(distanceX), int(distanceY)
     distance = math.sqrt((x - targetX)**2 + (y - targetY)**2)
-    print(distance)
-    distance = int(distance)
-    if distance <= 200 and distance >= 181:
-        print("white1, 1 point")
-    elif distance <= 180 and distance >= 161:
-        print("white2, 2 points")
-    elif distance <= 160 and distance >= 141:
-        print("black1, 3 points")
-    elif distance <= 140 and distance >= 121:
-        print("black2, 4 points")
-    elif distance <= 120 and distance >= 101:
-        print("blue1, 5 points")
-    elif distance <= 100 and distance >= 81:
-        print("blue2, 6 points")
-    elif distance <= 80 and distance >= 61:
-        print("red1, 7 points")
-    elif distance <= 60 and distance >= 41:
-        print("red2, 8 points")
-    elif distance <= 40 and distance >= 21:
-        print("yellow1, 9 points")
-    elif distance <= 20 and distance >= 10:
-        print("yellow2, 10 points")
-    elif distance <= 9 and distance >= 0:
-        print("bullseye! 10 points")
+    # print(f'Distance from center: {distance}')
 
+    # Get the width of the target image to calculate its radius
+    imgWidth = target.getWidth()
+    radius = imgWidth/2
 
-
-
+    # Calculate the distance ratio
+    distance_ratio = distance/radius
     
-
+    # Use distance ratio to determine the score
+    if 0.9 < distance_ratio <= 1.0:
+        print("You hit White1! +1 point")
+        score += 1
+    elif 0.8 < distance_ratio <= 0.9:
+        print("You hit White2! +2 points")
+        score += 2
+    elif 0.7 < distance_ratio <= 0.8:
+        print("You hit Black1! +3 points")
+        score += 3
+    elif 0.6 < distance_ratio <= 0.7:
+        print("You hit Black2! +4 points")
+        score += 4
+    elif 0.5 < distance_ratio <= 0.6:
+        print("You hit Blue1! +5 points")
+        score += 5
+    elif 0.4 < distance_ratio <= 0.5:
+        print("You hit Blue2! +6 point")
+        score += 6
+    elif 0.3 < distance_ratio <= 0.4:
+        print("You hit Red1! +7 points")
+        score += 7
+    elif 0.2 < distance_ratio <= 0.3:
+        print("You hit Red2! +8 points")
+        score += 8
+    elif 0.1 < distance_ratio <= 0.2:
+        print("You hit Yellow1! +9 points")
+        score += 9
+    elif 0.0 < distance_ratio <= 0.1:
+        print("You hit Bullseye! +10 points")
+        score += 10
+    return score
 
 def game(): # 1 round of game
+    global score
     timerCountdown.setText(timeout) # sets timer text to timeout time 
     time.sleep(0.5)
     start_time = time.time()
@@ -118,45 +134,40 @@ def game(): # 1 round of game
 
 def main(): # main method
     defineAll()
-    '''
     openingText.draw(win)
     startButton.draw(win)
     startText.draw(win)
-    arrows = dict()
-    rounds = 3
-    for i in range(1,rounds+1):
-        arrows[i] = Image(Point(i * 2,45), (os.path.join(currentDirectory,"images/arrow.png")))
-
-
-
+    
+    # checks what option the user chooses and sends them to desired option
     while True:
-        # try:
+        try:
             mouse = win.getMouse()
             x = int(mouse.getX())
             y = int(mouse.getY())
             if (x >= 150) & (x <= 350):
                 if (y >= 150) & (y <= 250):
                     break
-        # except GraphicsError:
-            # win.close()
-            # print("Window closed prematurely.")
-            # break
-    # try:
-    win.setBackground("light green")
-    openingText.undraw()
-    startText.undraw()
-    startButton.undraw()
-    countToStart()
-    '''
-    rounds = 20
-    timerSquare.draw(win)
-    timerCountdown.draw(win)
-    target.draw(win)
-    for i in range(1,rounds+1):
-        game()
-        # arrows[i].undraw() UNCOMMENT
-    # except:
-        # print("Something went wrong. Please try again!")
+        except GraphicsError:
+            win.close()
+            print("Window closed prematurely.")
+            break
+
+    try:
+        win.setBackground("light green")
+        clear(win)
+        countToStart()
+        timerSquare.draw(win)
+        timerCountdown.draw(win)
+        target.draw(win)
+        for i in arrows:
+            arrows[i].draw(win)
+        for i in range(1,rounds+1):
+            game()
+            arrows[i].undraw() 
+        print(f"Your final score is: {score}\nClick to Quit.")
+        clear(win)
+    except:
+        print("Something went wrong. Please try again!")
       
     
 # run the program!
@@ -193,6 +204,7 @@ except GraphicsError:
 # REFERENCES:
 
 # - Used Copilot for help with timer and distance function
+# - Also used Copilot for help with distance_ratio
 # - https://stackoverflow.com/questions/45517677/graphics-py-how-to-clear-the-window
 # - https://stackoverflow.com/questions/7165749/open-file-in-a-relative-location-in-python 
 # - https://improveyourarchery.com/target-size-calculator/ this might be useful
