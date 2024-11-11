@@ -14,6 +14,10 @@ def settingsScreen():
     backText.draw(win)
     htpButton.draw(win)
     htpText.draw(win)
+    targetSizeEntry.draw(win)
+    targetSizeText.draw(win)
+    defaultColorText.draw(win)
+    defaultColorEntry.draw(win)
     while True:
         try:
             mouse = win.getMouse()
@@ -32,6 +36,8 @@ def settingsScreen():
             break
     if buttonClicked == "GoBack":
         clear()
+        targetSize = targetSizeEntry.getText()
+        defaultBackgroundColor = defaultColorEntry.getText()
         main()
     if buttonClicked == "HTP":
         clear()
@@ -67,7 +73,7 @@ def clear(): # clears the window
         item.undraw()
 
 def countToStart(): # function for countdown before start
-    win.setBackground("light green")
+    win.setBackground(defaultBackgroundColor)
     startCountdownText.draw(win)
     time.sleep(1)
     startCountdownText.setText("Begin in ... 4")

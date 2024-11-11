@@ -4,6 +4,7 @@
 # Also might store future settings (ex: # of rounds, wind enable/disable, etc.)
 
 from graphics import *
+from storage import *
 
 howToPlay = (
     f"Welcome to Archery! A game created by Michael DeVito\n"
@@ -23,3 +24,9 @@ htpButton.setFill("Light green")
 htpText = Text(Point(250,425), "How to Play")
 instructions = Text(Point(250,300),howToPlay)
 instructions.setSize(10)
+targetSizeText = Text(Point(200,300),"Target Size: (Small, Medium, Large)")
+targetSizeEntry = Entry(Point(375,300),8)
+targetSizeEntry.setText(targetSize)
+defaultColorText = Text(Point(200,275),"Background Color:")
+defaultColorEntry = Entry(Point(325,275),10)
+defaultColorEntry.setText(defaultBackgroundColor)
