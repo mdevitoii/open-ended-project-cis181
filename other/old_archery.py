@@ -3,25 +3,22 @@
 # An archery program designed for Theresa
 # Version 1.0
 
-
-# Note: THIS VERSION HAS BEEN ARCHIVED.
-# A new version can be found at my github
-# https://github.com/mdevitoii/open-ended-project-cis181 
-
-
-
 import time
 import math
 from graphics import *
 import settings
 
+# Note: THIS VERSION HAS BEEN ARCHIVED. A NEW ONE CAN BE FOUND ON MY GITHUB PAGE:
+# https://github.com/mdevitoii
+
+
 # Initialize the window
-win = GraphWin("Archery Game", 500, 500)
+win = GraphWin("Archery Game!", 500, 500)
 win.setCoords(0,0,50,50)
 win.setBackground("green")
 
 # Initialize all archery objects
-openingText = Text(Point(25,45), "Theresa's Archery Game")
+openingText = Text(Point(25,45), "Archery Game")
 openingText.setSize(30)
 startButton = Rectangle(Point(15,15),Point(35,25))
 startButton.setFill("light green")
