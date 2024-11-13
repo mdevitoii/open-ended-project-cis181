@@ -5,7 +5,6 @@
 
 import time, math, os
 from graphics import *
-from settings import *
 from storage import *
 
 def settingsScreen():
@@ -36,8 +35,10 @@ def settingsScreen():
             break
     if buttonClicked == "GoBack":
         clear()
-        targetSize = targetSizeEntry.getText()
-        defaultBackgroundColor = defaultColorEntry.getText()
+        data[0] = defaultColorEntry.getText() + '\n'
+        data[1] = targetSizeEntry.getText() + '\n'
+        with open(settingsPath, "w") as file:
+            file.writelines(data)
         main()
     if buttonClicked == "HTP":
         clear()
@@ -68,12 +69,15 @@ def htpScreen():
         backText.setText("Save and Exit")
         settingsScreen()
 
+def reloadSettings():
+    with open(settingsPath, 'r') as file:
+        data = file.readlines()
+
 def clear(): # clears the window
     for item in win.items[:]:
         item.undraw()
 
 def countToStart(): # function for countdown before start
-    win.setBackground(defaultBackgroundColor)
     startCountdownText.draw(win)
     time.sleep(1)
     startCountdownText.setText("Begin in ... 4")
@@ -163,7 +167,9 @@ def game(): # 1 round of game
         print("Program was not clicked in time")
 
 def main(): # main method
-    win.setBackground("light blue")
+    win.redraw()
+    reloadSettings()
+    win.setBackground(data[0].replace('\n', ""))
     openingText.draw(win)
     startButton.draw(win)
     startText.draw(win)

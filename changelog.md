@@ -10,3 +10,10 @@
 - Added How-to-Play screen and fixed bugs with returning to main() after settingsScreen()
 - Added some templates for settings that I can change
   - Background color and target size
+## 11/13/24 v1.0.3
+- Merged settings.py and storage.py
+  - Did this to make things simpler and because they were just storing variables and non-changing values
+- Created settings.txt
+  - Used for storing individual values for settings that do change. Ex: background color, target size, etc.
+- Saving values in settings.txt now works
+  - Need to make a "reset to defaults" button
