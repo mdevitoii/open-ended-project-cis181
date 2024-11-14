@@ -103,14 +103,7 @@ def pointCalculation(click):
     targetCenter = target.getAnchor()
     targetX = targetCenter.getX()
     targetY = targetCenter.getY()
-    distanceX = abs(x - targetX)
-    distanceY = abs(y - targetY)
-    # print(f'dist x = {distanceX}')
-    # print(f'dist y = {distanceY}')
-    distanceX, distanceY = int(distanceX), int(distanceY)
     distance = math.sqrt((x - targetX)**2 + (y - targetY)**2)
-    # print(f'Distance from center: {distance}'
-    # Get the width of the target image to calculate its radius
     imgWidth = target.getWidth()
     radius = imgWidth/2
     # Calculate the distance ratio
@@ -149,7 +142,6 @@ def pointCalculation(click):
     return score
 
 def game(): # 1 round of game
-    global score
     timerCountdown.setText(timeout) # sets timer text to timeout time 
     time.sleep(0.5)
     start_time = time.time()

@@ -6,8 +6,8 @@ from graphics import *
 
 currentDirectory = os.path.dirname(__file__)
 center = Point(250,250)
-score = 0
 rounds = 3
+score = 0
 target = Image(center, (os.path.join(currentDirectory,"images/target.png")))
 win = GraphWin("Archery Game", 500, 500)
 win.setCoords(0,0,500,500)
