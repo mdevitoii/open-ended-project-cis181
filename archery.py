@@ -9,14 +9,8 @@ from storage import *
 
 def settingsScreen():
     win.setBackground("light gray")
-    backButton.draw(win)
-    backText.draw(win)
-    htpButton.draw(win)
-    htpText.draw(win)
-    targetSizeEntry.draw(win)
-    targetSizeText.draw(win)
-    defaultColorText.draw(win)
-    defaultColorEntry.draw(win)
+    for o in settingsObjects:
+        o.draw(win)
     while True:
         try:
             mouse = win.getMouse()
@@ -68,6 +62,49 @@ def htpScreen():
         clear()
         backText.setText("Save and Exit")
         settingsScreen()
+
+def choiceScreen():
+    ## Initialize all local variables
+    fsbox, tpbox, ffabox = Rectangle(Point(25,100),Point(165,400)), Rectangle(Point(180,100),Point(320,400)), Rectangle(Point(335,100),Point(475,400))
+    fsbutton,tpbutton,ffabutton = Rectangle(Point(35,130),Point(155,180)), Rectangle(Point(190,130),Point(310,180)), Rectangle(Point(345,130),Point(465,180))
+    fsbutton.setFill("gray"),tpbutton.setFill("gray"),ffabutton.setFill("gray")
+    fsbtext,tpbtext,ffabtext = Text(Point(95,155),"Select"),Text(Point(250,155),"Select"),Text(Point(405,155),"Select")
+    fstitle, tptitle, ffatitle = Text(Point(95,350),"Free Shoot"), Text(Point(250,350),"Target Practice"), Text(Point(405,350),"Free For All")
+    fsimage,tpimage,ffaimage = Image(Point(95,250),(os.path.join(currentDirectory,"images/freeshoot.png"))),Image(Point(250,250),(os.path.join(currentDirectory,"images/targetpractice.png"))),Image(Point(405,250),(os.path.join(currentDirectory,"images/freeforall.png")))
+    bigtitle = Text(Point(250,450),"Please Select Your Gamemode:")
+    bigtitle.setFace("arial"), bigtitle.setSize(20)
+    gamemode = ""
+    # Help Button
+    helpButton,helpText = Rectangle(Point(150,25),Point(350,75)), Text(Point(250,50),"Wait, what do these mean?")
+    helpButton.setFill("gray"), helpText.setFill("Black")
+    objects = [fsbox,tpbox,ffabox,fsbutton,tpbutton,ffabutton,fsbtext,tpbtext,ffabtext,fstitle,tptitle,ffatitle,fsimage,tpimage,ffaimage,helpButton,helpText,bigtitle]
+    
+    # Actual code
+    win.setBackground("light green")
+    for o in objects:
+        o.draw(win)
+    while gamemode == "":
+        try:
+            mouse = win.getMouse()
+            x = int(mouse.getX())
+            y = int(mouse.getY())
+            if (y >= 130) & (y <= 180):
+                if (x>=35) & (x<=155):
+                    gamemode = "FS"
+                if (x>=190) & (x<=310):
+                    gamemode = "TP"
+                if (x>=345) & (x<=465):
+                    gamemode = "FFA"
+            if (y>=25) & (y<=75):
+                if(x>=150) & (x<=350):
+                    gamemode = "HELP"
+        except GraphicsError:
+            win.close()
+            print("Window closed prematurely.")
+            break
+    print(gamemode) # troubleshooting line
+    clear()
+    return gamemode
 
 def reloadSettings():
     with open(settingsPath, 'r') as file:
@@ -189,17 +226,21 @@ def main(): # main method
             break
     if buttonClicked == "Start":
         clear()
-        countToStart()
-        timerSquare.draw(win)
-        timerCountdown.draw(win)
-        target.draw(win)
-        for i in arrows:
-            arrows[i].draw(win)
-        for i in range(1,rounds+1):
-            game()
-            arrows[i].undraw() 
-        print(f"Your final score is: {score}\nClick to Quit.")
-        clear()
+        gamemode = choiceScreen() 
+        if gamemode == "HELP":
+            htpScreen()
+        else:
+            countToStart()
+            timerSquare.draw(win)
+            timerCountdown.draw(win)
+            target.draw(win)
+            for i in arrows:
+                arrows[i].draw(win)
+            for i in range(1,rounds+1):
+                game()
+                arrows[i].undraw() 
+            print(f"Your final score is: {score}\nClick to Quit.")
+            clear()
     elif buttonClicked == "Settings":
         clear()
         settingsScreen()

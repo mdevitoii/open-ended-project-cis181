@@ -42,11 +42,13 @@ targetSize = data[1].replace('\n', "")
 ### Everything for Settings Screen and How-to-Play Screen
 howToPlay = (
     f"Welcome to Archery! A game created by Michael DeVito\n"
-    f"Dedicated to Theresa <3\n\n\n"
+    f"Dedicated to Theresa <3\n\n"
     f"Archery can be played by either using the arrow keys or the Mouse.\nYou can configure which input you use via the settings screen.\n\n"
     f"The goal is to shoot as close to the center ring as you can.\nThe closer you are, the higher the point value!\n\n"
-    f"The game defaults to 3 shots per round with 5 seconds to shoot each shot.\nThese values can be configured via the settings screen.\n\n"
-    f"Gameplay too boring? \nTry out the difficulties and different gamemodes in the settings screen!\n\n"
+    f"There are three gamemodes: Free Shoot, Target Practice, and Free For All\n\n"
+    f"Free Shoot: Freely shoot the target for 3 shots, with\n5 seconds per shot. No wind or moving target\n\n"
+    f'Target Practice: Shoot the target for 3 shots, but with wind\nand possibly moving target. Difficulties are Easy, Medium, Hard, and Extreme.\n\n'
+    f'Free For All: So many targets! Shoot as many as you can within 15 seconds!\n\n'
     f"Thank you for playing, and have fun!"
 )
 backButton = Rectangle(Point(150,75),Point(350,125))
@@ -64,3 +66,5 @@ targetSizeEntry.setText(targetSize)
 defaultColorText = Text(Point(200,275),"Background Color:")
 defaultColorEntry = Entry(Point(325,275),10)
 defaultColorEntry.setText(defaultBackgroundColor)
+settingsObjects = [backButton,backText,htpButton,htpText,targetSizeText,targetSizeEntry,defaultColorText,defaultColorEntry]
+

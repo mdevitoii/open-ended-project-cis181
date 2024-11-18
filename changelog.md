@@ -17,3 +17,7 @@
   - Used for storing individual values for settings that do change. Ex: background color, target size, etc.
 - Saving values in settings.txt now works
   - Need to make a "reset to defaults" button
+## 11/17/24 v1.1.0
+- Added new images
+- Added the choice selection screen for gamemodes 
+- Updated How-to-play screen
