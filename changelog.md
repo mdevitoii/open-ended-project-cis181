@@ -21,3 +21,8 @@
 - Added new images
 - Added the choice selection screen for gamemodes 
 - Updated How-to-play screen
+## 11/18/24 v1.2
+- Configured gamemode selection screen
+- Moving more variables away from storage.py
+- added arrow key movement but only for Target Practice gamemode
+  - Will be adding to other modes soon

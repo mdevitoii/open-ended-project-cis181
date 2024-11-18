@@ -3,21 +3,19 @@
 ~~draw target~~
 ~~3 shots~~
 ~~calculate points~~
-# Version 2 
 ~~timer~~
 ~~5 shots~~
 ~~Show a visual of how many shots left~~
-# Version 3
 ~~Settings Screen~~
-~~How-To-Play with Instructions~~
-    - Enable/Disable wind factor button  
+~~How-To-Play with Instructions~~  
 # Future Additions:
     # music?
-    # wind factor
+~~wind factor~~
     # optimize clicking by making cooridnates = screen size (changing scaling)
-    # different modes
-    # easy, medium, hard concerns target distance (size)
-    # all-out mode where you click as many targets as you can within 10 seconds
+~~different modes~~
+    # themes (fall, winter, spring, summer, hunger games)
+    # pickling for stuff stored in settings.mike so that users can't mess with it
+    # tips in loading screen
 
 # Gamemodes:
     - Free Shoot: shoot target with no wind or anything
