@@ -175,6 +175,9 @@ def countToStart(gamemode,mode,difficulty,arrows): # function for countdown befo
     gamemodeText,modetext = Text(Point(250,200),f'Current Gamemode: {gamemode}'),Text(Point(250,100),f'Controls: {mode}')
     gamemodeText.setSize(20),modetext.setSize(20)
     gamemodeText.draw(win),modetext.draw(win)
+    startCountdownText = Text(Point(250,300), "Begin in ... 5")
+    startCountdownText.setSize(30)
+    startCountdownText.setFill("Black")
     if difficulty != None:
         difficultytext = Text(Point(250,150),f'Current Difficulty: {difficulty}')
         difficultytext.setSize(20), difficultytext.draw(win)
@@ -196,6 +199,7 @@ def countToStart(gamemode,mode,difficulty,arrows): # function for countdown befo
     target.draw(win)
     for i in arrows:
         arrows[i].draw(win)
+    startCountdownText.setText("Begin in ... 5")
 
 def pointCalculation(click,difficulty,wind,score):
     x,y = round(click.x,0), round(click.y,0)
@@ -392,7 +396,7 @@ def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Ta
             score = pointCalculation(click,difficulty,wind,score)
         else:
             print("Program was not clicked in time")
-        return None, score
+        return Point(250,250), score
     if mode == "arrows":
         if key == "space":
             currentPOS = crosshair.getAnchor()
@@ -406,73 +410,95 @@ def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Ta
 
 def main(): # main method
     # initialize everything
-    score = 0
-    data = reloadSettings()
-    arrows = dict()
-    rounds = 20
-    openingText, startButton, startText, settingsButton, settingsText = Text(Point(250,450), "Theresa's Archery Game"), Rectangle(Point(150,150),Point(350,250)), Text(Point(250, 200), "Click to Start"),Rectangle(Point(150,75),Point(350,125)),Text(Point(250,100),"Settings/How-To-Play")
-    openingText.setSize(30),startButton.setFill("light green"),startText.setFill("Black"),settingsButton.setFill("gray"),settingsText.setFill("Black")
-    for i in range(1,rounds+1):
-        arrows[i] = Image(Point(i * 20,480), (os.path.join(os.path.dirname(__file__),"images/arrow.png")))
-    try:
-        win.setBackground(data[0].replace('\n', ""))
-        mode = data[1]
-    except:
-        data = ["pink\n","mouse\n"]
-        with open(os.path.join(os.path.dirname(__file__), 'settings.mike'), "w") as file:
-            file.writelines(data)
-    openingText.draw(win)
-    startButton.draw(win)
-    startText.draw(win)
-    settingsButton.draw(win)
-    settingsText.draw(win)
-    buttonClicked = ""
-    currentPOS = Point(250,250)
-    
-    # checks what option the user chooses and sends them to desired option
-    while True:
-        try:
-            mouse = win.getMouse()
-            x = int(mouse.getX())
-            y = int(mouse.getY())
-            if (x >= 150) & (x <= 350):
-                if (y >= 150) & (y <= 250):
-                    buttonClicked = "Start"
-                    break
-                elif (y>=75) & (y<=125):
-                    buttonClicked = "Settings"
-                    break
-            
-        except GraphicsError:
-            win.close()
-            print("Window closed prematurely.")
-            break
-    # checks button that was clicked and sends user to correct gamemode
-    if buttonClicked == "Start":
-        clear()
-        gamemode = choiceScreen() 
-        if gamemode == "HELP":
-            htpScreen()
-        elif gamemode == "FS":
-            countToStart("Free Shoot", mode.capitalize(),None,arrows)
-            for i in range(1,rounds+1):
-                currentPOS,score = freeShootRound(mode,currentPOS,score)
-                arrows[i].undraw() 
-            print(f"Your final score is: {score}\nClick to Quit.")
-            clear()
-        elif gamemode == "TP":
-            countToStart("Target Practice",mode.capitalize(),"Easy",arrows)
-            for i in range(1,rounds+1):
-                currentPOS, score = targetPracticeRound("E",mode,currentPOS,score)
-                arrows[i].undraw()
-            print(f"Your final score is: {score}\nClick to Quit.")
-            clear()
-        elif gamemode == "FFA":
-            countToStart("Free-For-All",mode.capitalize(),None,arrows)
+    # playing = True
 
-    elif buttonClicked == "Settings":
-        clear()
-        settingsScreen()
+    # while playing:
+        score = 0
+        data = reloadSettings()
+        arrows = dict()
+        rounds = 5
+        openingText, startButton, startText, settingsButton, settingsText = Text(Point(250,450), "Theresa's Archery Game"), Rectangle(Point(150,150),Point(350,250)), Text(Point(250, 200), "Click to Start"),Rectangle(Point(150,75),Point(350,125)),Text(Point(250,100),"Settings/How-To-Play")
+        openingText.setSize(30),startButton.setFill("light green"),startText.setFill("Black"),settingsButton.setFill("gray"),settingsText.setFill("Black")
+        for i in range(1,rounds+1):
+            arrows[i] = Image(Point(i * 20,480), (os.path.join(os.path.dirname(__file__),"images/arrow.png")))
+        try:
+            win.setBackground(data[0].replace('\n', ""))
+            mode = data[1]
+        except:
+            data = ["pink\n","mouse\n"]
+            with open(os.path.join(os.path.dirname(__file__), 'settings.mike'), "w") as file:
+                file.writelines(data)
+        openingText.draw(win)
+        startButton.draw(win)
+        startText.draw(win)
+        settingsButton.draw(win)
+        settingsText.draw(win)
+        buttonClicked = ""
+        currentPOS = Point(250,250)
+        
+        # checks what option the user chooses and sends them to desired option
+        while True:
+            try:
+                mouse = win.getMouse()
+                x = int(mouse.getX())
+                y = int(mouse.getY())
+                if (x >= 150) & (x <= 350):
+                    if (y >= 150) & (y <= 250):
+                        buttonClicked = "Start"
+                        break
+                    elif (y>=75) & (y<=125):
+                        buttonClicked = "Settings"
+                        break
+                
+            except GraphicsError:
+                win.close()
+                print("Window closed prematurely.")
+                break
+        # checks button that was clicked and sends user to correct gamemode
+        if buttonClicked == "Start":
+            clear()
+            gamemode = choiceScreen() 
+            if gamemode == "HELP":
+                htpScreen()
+            elif gamemode == "FS":
+                countToStart("Free Shoot", mode.capitalize(),None,arrows)
+                for i in range(1,rounds+1):
+                    freeShootRound(mode,currentPOS,score)
+                    arrows[i].undraw() 
+            elif gamemode == "TP":
+                countToStart("Target Practice",mode.capitalize(),"Easy",arrows)
+                for i in range(1,rounds+1):
+                    currentPOS,score = targetPracticeRound("E",mode,currentPOS,score)
+                    arrows[i].undraw()
+            elif gamemode == "FFA":
+                countToStart("Free-For-All",mode.capitalize(),None,arrows)
+            
+            sleep(0.5)
+            scorebox = Rectangle(Point(125,125),Point(375,175))
+            scorebox.setFill("yellow"),scorebox.draw(win)
+            scoretext = Text(Point(250,150),f'Your Final Score is: {score}')
+            scoretext.setSize(15),scoretext.draw(win)
+            returnbutton = Rectangle(Point(200,25),Point(300,75))
+            returnbutton.setFill("lime"), returnbutton.draw(win)
+            returntext = Text(Point(250,50),f'Return to Menu')
+            returntext.setSize(10), returntext.draw(win)
+            while True:
+                try:
+                    mouse = win.getMouse()
+                    x = int(mouse.getX())
+                    y = int(mouse.getY())
+                    if (x >= 200) & (x <= 300):
+                        if (y >= 25) & (y <= 75):
+                            break
+                except GraphicsError:
+                    win.close()
+                    print("Window closed prematurely.")
+                    break
+            clear()
+
+        elif buttonClicked == "Settings":
+            clear()
+            settingsScreen()
     
 # run the program!
 if __name__ == "__main__":
