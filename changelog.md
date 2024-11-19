@@ -26,3 +26,4 @@
 - Moving more variables away from storage.py
 - added arrow key movement but only for Target Practice gamemode
   - Will be adding to other modes soon
+- configured more modes

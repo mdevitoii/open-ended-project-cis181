@@ -149,7 +149,6 @@ def choiceScreen():
             win.close()
             print("Window closed prematurely.")
             break
-    print(gamemode) # troubleshooting line
     clear()
     return gamemode
 
@@ -172,7 +171,13 @@ def clear(): # clears the window
     for item in win.items[:]:
         item.undraw()
 
-def countToStart(): # function for countdown before start
+def countToStart(gamemode,mode,difficulty,arrows): # function for countdown before start
+    gamemodeText,modetext = Text(Point(250,200),f'Current Gamemode: {gamemode}'),Text(Point(250,100),f'Controls: {mode}')
+    gamemodeText.setSize(20),modetext.setSize(20)
+    gamemodeText.draw(win),modetext.draw(win)
+    if difficulty != None:
+        difficultytext = Text(Point(250,150),f'Current Difficulty: {difficulty}')
+        difficultytext.setSize(20), difficultytext.draw(win)
     startCountdownText.draw(win)
     sleep(1)
     startCountdownText.setText("Begin in ... 4")
@@ -192,32 +197,30 @@ def countToStart(): # function for countdown before start
     for i in arrows:
         arrows[i].draw(win)
 
-def pointCalculation(click,difficulty,wind):
-    global score
-    # print(f"Mouse was clicked at ({click.x}, {click.y})") # troubeshooting only
-    # the following 4 lines might be replaced with an image drawing that shows an arrow in the target. idk maybe
+def pointCalculation(click,difficulty,wind,score):
     x,y = round(click.x,0), round(click.y,0)
-    if difficulty in "EMH":
-        if wind[1] == "N":
-            y += (wind[0]*20)
-        elif wind[1] == "NE":
-            x += ((wind[0]) * 20)
-            y += ((wind[0]) * 20)
-        elif wind[1] == "E":
-            x += (wind[0]*20)
-        elif wind[1] == "SE":
-            x += ((wind[0]) * 20)
-            y -= ((wind[0]) * 20)
-        elif wind[1] == "S":
-            y -= (wind[0]*20)
-        elif wind[1] == "SW":
-            x -= ((wind[0]) * 20)
-            y -= ((wind[0]) * 20)
-        elif wind[1] == "W":
-            x -= ((wind[0]) * 20)
-        elif wind[1] == "NW":
-            x -= ((wind[0]) * 20)
-            y += ((wind[0]) * 20)
+    if difficulty != None:
+        if difficulty in "EMH":
+            if wind[1] == "N":
+                y += (wind[0]*20)
+            elif wind[1] == "NE":
+                x += ((wind[0]) * 20)
+                y += ((wind[0]) * 20)
+            elif wind[1] == "E":
+                x += (wind[0]*20)
+            elif wind[1] == "SE":
+                x += ((wind[0]) * 20)
+                y -= ((wind[0]) * 20)
+            elif wind[1] == "S":
+                y -= (wind[0]*20)
+            elif wind[1] == "SW":
+                x -= ((wind[0]) * 20)
+                y -= ((wind[0]) * 20)
+            elif wind[1] == "W":
+                x -= ((wind[0]) * 20)
+            elif wind[1] == "NW":
+                x -= ((wind[0]) * 20)
+                y += ((wind[0]) * 20)
 
     spotClicked = Point(x,y)
     spotClicked.setFill("black")
@@ -230,7 +233,6 @@ def pointCalculation(click,difficulty,wind):
     radius = imgWidth/2
     # Calculate the distance ratio
     distance_ratio = distance/radius
-    print(distance_ratio) # troubleshooting
     # Use distance ratio to determine the score
     if 0.9 < distance_ratio <= 1.0:
         print("You hit White1! +1 point")
@@ -266,26 +268,63 @@ def pointCalculation(click,difficulty,wind):
         print("You missed!")
     return score
 
-def freeShootRound(): # 1 round of game, Free shoot gamemode
+def freeShootRound(mode,currentPOS,score): # 1 round of game, Free shoot gamemode
     timerCountdown.setText(timeout) # sets timer text to timeout time 
     sleep(0.5)
     start_time = time.time()
     click = None
-    difficulty, wind = "N", "N"
-        
-    while time.time() - start_time < timeout:
-        click = win.checkMouse()
-        remaining_time = int(timeout - (time.time() - start_time))
-        timerCountdown.setText(f"{remaining_time}")
-        sleep(0.1)
-        if click:
-            break
-    if click:
-        pointCalculation(click,difficulty,wind)
-    else:
-        print("Program was not clicked in time")
+    difficulty, wind = None, None
+    if currentPOS == None:
+        currentPOS = Point(250,250)
+    crosshair = Image(currentPOS,(os.path.join(os.path.dirname(__file__),"images/crosshair.png")))
+    if mode == "arrows":
+        crosshair.draw(win)
+    elif mode == "mouse":
+        click = None
 
-def targetPracticeRound(difficulty,mode,currentPOS): # 1 round of game, Target Practice gamemode
+    while time.time() - start_time < timeout:
+        if mode == "mouse":
+            click = win.checkMouse()
+            remaining_time = int(timeout - (time.time() - start_time))
+            timerCountdown.setText(f"{remaining_time}")
+            sleep(0.1)
+            if click:
+                break
+        elif mode == "arrows":
+            key = win.checkKey()
+            sleep(0.1)
+            remaining_time = int(timeout - (time.time() - start_time))
+            timerCountdown.setText(f"{remaining_time}")
+            if key == "Right":
+                crosshair.move(10,0)
+            elif key == "Left":
+                crosshair.move(-10,0)
+            elif key == "Up":
+                crosshair.move(0,10)
+            elif key == "Down":
+                crosshair.move(0,-10)   
+            elif key == "space":
+                print("Shot taken!")
+                crosshair.undraw()
+                break
+    
+    if mode == "mouse":
+        if click:
+            score = pointCalculation(click,difficulty,wind,score)
+        else:
+            print("Program was not clicked in time")
+        return None, score
+    if mode == "arrows":
+        if key == "space":
+            currentPOS = crosshair.getAnchor()
+            score = pointCalculation(currentPOS,difficulty,wind,score)
+            return currentPOS, score
+        else:
+            print("Spacebar was not hit in time")
+            crosshair.undraw()
+
+
+def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Target Practice gamemode
     # local variables
     wind_speed, wind_direction = 0,0
     windbox = Rectangle(Point(450,350),Point(500,450))
@@ -332,6 +371,9 @@ def targetPracticeRound(difficulty,mode,currentPOS): # 1 round of game, Target P
                 break
         elif mode == "arrows":
             key = win.checkKey()
+            sleep(0.1)
+            remaining_time = int(timeout - (time.time() - start_time))
+            timerCountdown.setText(f"{remaining_time}")
             if key == "Right":
                 crosshair.move(10,0)
             elif key == "Left":
@@ -344,28 +386,34 @@ def targetPracticeRound(difficulty,mode,currentPOS): # 1 round of game, Target P
                 print("Shot taken!")
                 crosshair.undraw()
                 break
-            remaining_time = int(timeout - (time.time() - start_time))
-            timerCountdown.setText(f"{remaining_time}")
     if mode == "mouse":
         if click:
             wind = [wind_speed,directionsText[wind_direction]]
-            pointCalculation(click,difficulty,wind)
+            score = pointCalculation(click,difficulty,wind,score)
         else:
             print("Program was not clicked in time")
+        return None, score
     if mode == "arrows":
         if key == "space":
             currentPOS = crosshair.getAnchor()
             wind = [wind_speed,directionsText[wind_direction]]
-            pointCalculation(currentPOS,difficulty,wind)
-            return currentPOS
+            score = pointCalculation(currentPOS,difficulty,wind,score)
+            return currentPOS,score
         else:
             print("Spacebar was not hit in time")
             crosshair.undraw()
     directions[wind_direction].undraw(), windText.undraw()
 
 def main(): # main method
-    win.redraw()
+    # initialize everything
+    score = 0
     data = reloadSettings()
+    arrows = dict()
+    rounds = 20
+    openingText, startButton, startText, settingsButton, settingsText = Text(Point(250,450), "Theresa's Archery Game"), Rectangle(Point(150,150),Point(350,250)), Text(Point(250, 200), "Click to Start"),Rectangle(Point(150,75),Point(350,125)),Text(Point(250,100),"Settings/How-To-Play")
+    openingText.setSize(30),startButton.setFill("light green"),startText.setFill("Black"),settingsButton.setFill("gray"),settingsText.setFill("Black")
+    for i in range(1,rounds+1):
+        arrows[i] = Image(Point(i * 20,480), (os.path.join(os.path.dirname(__file__),"images/arrow.png")))
     try:
         win.setBackground(data[0].replace('\n', ""))
         mode = data[1]
@@ -379,7 +427,7 @@ def main(): # main method
     settingsButton.draw(win)
     settingsText.draw(win)
     buttonClicked = ""
-    currentPOS = center
+    currentPOS = Point(250,250)
     
     # checks what option the user chooses and sends them to desired option
     while True:
@@ -406,21 +454,21 @@ def main(): # main method
         if gamemode == "HELP":
             htpScreen()
         elif gamemode == "FS":
-            countToStart()
+            countToStart("Free Shoot", mode.capitalize(),None,arrows)
             for i in range(1,rounds+1):
-                freeShootRound()
+                currentPOS,score = freeShootRound(mode,currentPOS,score)
                 arrows[i].undraw() 
             print(f"Your final score is: {score}\nClick to Quit.")
             clear()
         elif gamemode == "TP":
-            countToStart()
+            countToStart("Target Practice",mode.capitalize(),"Easy",arrows)
             for i in range(1,rounds+1):
-                currentPOS = targetPracticeRound("E",mode,currentPOS)
+                currentPOS, score = targetPracticeRound("E",mode,currentPOS,score)
                 arrows[i].undraw()
             print(f"Your final score is: {score}\nClick to Quit.")
             clear()
         elif gamemode == "FFA":
-            countToStart()
+            countToStart("Free-For-All",mode.capitalize(),None,arrows)
 
     elif buttonClicked == "Settings":
         clear()
@@ -437,30 +485,3 @@ try:
 except GraphicsError:
     win.close()
     print("Window was closed prematurely")
-
-
-# Version 1
-    # welcome screen DONE
-    # draw target DONE
-    # 3 shots DONE
-    # calculate points DONE
-# Version 2 
-    # timer DONE
-    # 5 shots DONE
-    # Show a visual of how many shots left DONE
-# Version 3
-    # music?
-    # wind factor
-    # optimize clicking by making cooridnates = screen size (changing scaling)
-# Version 4
-    # different modes
-    # easy, medium, hard concerns target distance (size)
-    # all-out mode where you click as many targets as you can within 10 seconds
-
-# REFERENCES:
-
-# - Used Copilot for help with timer and distance function
-# - Also used Copilot for help with distance_ratio
-# - https://stackoverflow.com/questions/45517677/graphics-py-how-to-clear-the-window
-# - https://stackoverflow.com/questions/7165749/open-file-in-a-relative-location-in-python 
-# - https://improveyourarchery.com/target-size-calculator/ this might be useful
