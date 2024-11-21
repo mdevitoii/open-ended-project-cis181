@@ -3,12 +3,13 @@
 # An archery program designed for Theresa <3
 # Version 1.2
 
-from time import sleep, time
+from time import *
 from math import sqrt
 from os import path
 from random import randint
 from graphics import *
 from storage import *
+import gc
 
 def settingsScreen():
     # initalize local variables
@@ -274,29 +275,27 @@ def pointCalculation(click,difficulty,wind,score):
 
 def freeShootRound(mode,currentPOS,score): # 1 round of game, Free shoot gamemode
     timerCountdown.setText(timeout) # sets timer text to timeout time 
-    sleep(0.5)
+    # sleep(0.5)
     start_time = time.time()
-    click = None
     difficulty, wind = None, None
-    if currentPOS == None:
+    if currentPOS is None:
         currentPOS = Point(250,250)
-    crosshair = Image(currentPOS,(os.path.join(os.path.dirname(__file__),"images/crosshair.png")))
     if mode == "arrows":
+        crosshair = Image(currentPOS,(os.path.join(os.path.dirname(__file__),"images/crosshair.png")))
         crosshair.draw(win)
     elif mode == "mouse":
         click = None
 
     while time.time() - start_time < timeout:
-        if mode == "mouse":
+        if mode == "mouse": # ISSUE LIES SOMEWHERE IN HERE
             click = win.checkMouse()
             remaining_time = int(timeout - (time.time() - start_time))
             timerCountdown.setText(f"{remaining_time}")
-            sleep(0.1)
             if click:
                 break
         elif mode == "arrows":
             key = win.checkKey()
-            sleep(0.1)
+            # sleep(0.1)
             remaining_time = int(timeout - (time.time() - start_time))
             timerCountdown.setText(f"{remaining_time}")
             if key == "Right":
@@ -317,16 +316,21 @@ def freeShootRound(mode,currentPOS,score): # 1 round of game, Free shoot gamemod
             score = pointCalculation(click,difficulty,wind,score)
         else:
             print("Program was not clicked in time")
-        return None, score
+    
     if mode == "arrows":
         if key == "space":
             currentPOS = crosshair.getAnchor()
             score = pointCalculation(currentPOS,difficulty,wind,score)
-            return currentPOS, score
+            
         else:
             print("Spacebar was not hit in time")
             crosshair.undraw()
-
+    
+    passData = {
+            "centerPOS": currentPOS,
+            "score": score
+            }
+    return passData
 
 def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Target Practice gamemode
     # local variables
@@ -396,13 +400,21 @@ def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Ta
             score = pointCalculation(click,difficulty,wind,score)
         else:
             print("Program was not clicked in time")
-        return Point(250,250), score
+        passData = {
+            "centerPOS": Point(250,250),
+            "score": score
+            }
+        return passData
     if mode == "arrows":
         if key == "space":
             currentPOS = crosshair.getAnchor()
             wind = [wind_speed,directionsText[wind_direction]]
             score = pointCalculation(currentPOS,difficulty,wind,score)
-            return currentPOS,score
+            passData = {
+            "centerPOS": currentPOS,
+            "score": score
+            }
+            return passData
         else:
             print("Spacebar was not hit in time")
             crosshair.undraw()
@@ -410,15 +422,18 @@ def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Ta
 
 def main(): # main method
     # initialize everything
-    # playing = True
+    playing = True
 
-    # while playing:
-        score = 0
+    while playing:
+        time.sleep(0.5)
         data = reloadSettings()
         arrows = dict()
         rounds = 5
-        openingText, startButton, startText, settingsButton, settingsText = Text(Point(250,450), "Theresa's Archery Game"), Rectangle(Point(150,150),Point(350,250)), Text(Point(250, 200), "Click to Start"),Rectangle(Point(150,75),Point(350,125)),Text(Point(250,100),"Settings/How-To-Play")
-        openingText.setSize(30),startButton.setFill("light green"),startText.setFill("Black"),settingsButton.setFill("gray"),settingsText.setFill("Black")
+        try:
+            openingText, startButton, startText, settingsButton, settingsText, quitButton, quitText = Text(Point(250,450), "Theresa's Archery Game"), Rectangle(Point(150,150),Point(350,250)), Text(Point(250, 200), "Click to Start"),Rectangle(Point(150,75),Point(350,125)),Text(Point(250,100),"Settings/How-To-Play"),Rectangle(Point(450,50),Point(501,-1)),Text(Point(475,25),"Quit")
+            openingText.setSize(30),startButton.setFill("light green"),startText.setFill("Black"),settingsButton.setFill("gray"),settingsText.setFill("Black"),quitButton.setFill("red")
+        except:
+            pass
         for i in range(1,rounds+1):
             arrows[i] = Image(Point(i * 20,480), (os.path.join(os.path.dirname(__file__),"images/arrow.png")))
         try:
@@ -428,34 +443,36 @@ def main(): # main method
             data = ["pink\n","mouse\n"]
             with open(os.path.join(os.path.dirname(__file__), 'settings.mike'), "w") as file:
                 file.writelines(data)
-        openingText.draw(win)
-        startButton.draw(win)
-        startText.draw(win)
-        settingsButton.draw(win)
-        settingsText.draw(win)
-        buttonClicked = ""
-        currentPOS = Point(250,250)
-        
+        openingText.draw(win), startButton.draw(win), startText.draw(win),settingsButton.draw(win), settingsText.draw(win), quitButton.draw(win), quitText.draw(win)
+        buttonClicked = 0
+        center = Point(250,250)
+        passData = {
+            "centerPOS": center,
+            "score": 0
+        } # currentPOS and Score
+
         # checks what option the user chooses and sends them to desired option
-        while True:
+        while buttonClicked == 0:
             try:
                 mouse = win.getMouse()
                 x = int(mouse.getX())
                 y = int(mouse.getY())
                 if (x >= 150) & (x <= 350):
                     if (y >= 150) & (y <= 250):
-                        buttonClicked = "Start"
-                        break
+                        buttonClicked = 1 # start
                     elif (y>=75) & (y<=125):
-                        buttonClicked = "Settings"
-                        break
+                        buttonClicked = 2 # settings
+                elif (x >=450):
+                    if (y <= 50):
+                        buttonClicked = 3 # quit
                 
             except GraphicsError:
                 win.close()
+                buttonClicked = -1 # window closed
                 print("Window closed prematurely.")
-                break
+
         # checks button that was clicked and sends user to correct gamemode
-        if buttonClicked == "Start":
+        if buttonClicked == 1: # start
             clear()
             gamemode = choiceScreen() 
             if gamemode == "HELP":
@@ -463,12 +480,12 @@ def main(): # main method
             elif gamemode == "FS":
                 countToStart("Free Shoot", mode.capitalize(),None,arrows)
                 for i in range(1,rounds+1):
-                    freeShootRound(mode,currentPOS,score)
+                    passData = freeShootRound(mode,passData['centerPOS'],passData['score'])
                     arrows[i].undraw() 
             elif gamemode == "TP":
                 countToStart("Target Practice",mode.capitalize(),"Easy",arrows)
                 for i in range(1,rounds+1):
-                    currentPOS,score = targetPracticeRound("E",mode,currentPOS,score)
+                    passData = targetPracticeRound("E",mode,passData['centerPOS'],passData["score"])
                     arrows[i].undraw()
             elif gamemode == "FFA":
                 countToStart("Free-For-All",mode.capitalize(),None,arrows)
@@ -476,38 +493,34 @@ def main(): # main method
             sleep(0.5)
             scorebox = Rectangle(Point(125,125),Point(375,175))
             scorebox.setFill("yellow"),scorebox.draw(win)
-            scoretext = Text(Point(250,150),f'Your Final Score is: {score}')
+            scoretext = Text(Point(250,150),f'Your Final Score is: {passData['score']}')
             scoretext.setSize(15),scoretext.draw(win)
             returnbutton = Rectangle(Point(200,25),Point(300,75))
             returnbutton.setFill("lime"), returnbutton.draw(win)
             returntext = Text(Point(250,50),f'Return to Menu')
             returntext.setSize(10), returntext.draw(win)
-            while True:
+            buttonClicked = 0
+            while buttonClicked == 0:
                 try:
                     mouse = win.getMouse()
                     x = int(mouse.getX())
                     y = int(mouse.getY())
                     if (x >= 200) & (x <= 300):
                         if (y >= 25) & (y <= 75):
-                            break
+                            buttonClicked = 1 # go back to menu
                 except GraphicsError:
                     win.close()
                     print("Window closed prematurely.")
-                    break
+                    buttonClicked = -1 # win closed prematurely
             clear()
 
-        elif buttonClicked == "Settings":
+        elif buttonClicked == 2: # settings
             clear()
             settingsScreen()
+        elif buttonClicked == 3: # quit
+            win.close()
+            playing = False
     
 # run the program!
 if __name__ == "__main__":
     main()
-
-
-# For Troubleshooting only
-try:
-    win.getMouse()
-except GraphicsError:
-    win.close()
-    print("Window was closed prematurely")
