@@ -27,3 +27,17 @@
 - added arrow key movement but only for Target Practice gamemode
   - Will be adding to other modes soon
 - configured more modes
+## 12/2/24 v1.8
+*Yes I know I went from 2 to 8. This is a significant update*
+- CRASH DETECTION!
+  - now the game won't randomly die
+  - debug.mike gets value "True" when game was closed wrongly
+  - if True, sends player to crash screen and refreshes game so it doesn't crash
+- Added some error detection and mitigation
+- Changed some values from strings to ints
+- optimized some code and smashed some bugs
+- GOT RID OF STORAGE.PY FINALLY
+  - but I still 1 global variable, the target image :/
+- added some more stuff to futureplans.md
+- added Free For All mode!
+  - hit as many targets as you can in 30 seconds

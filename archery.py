@@ -8,10 +8,13 @@ from math import sqrt
 from os import path
 from random import randint
 from graphics import *
-from storage import *
 import gc
 
-def settingsScreen():
+############### GLOBAL VARIABLES (GET RID OF ASAP) ###############
+target = Image(Point(250,250), (os.path.join(os.path.dirname(__file__),"images/target.png")))
+##################################################################
+
+def settingsScreen(w):  
     # initalize local variables
     settingsPath = os.path.join(os.path.dirname(__file__), 'settings.mike') 
     defaultColorText, modeText = Text(Point(175,275),"Background Color:"), Text(Point(175,250),"Controls: (Mouse or Arrows)")
@@ -20,14 +23,12 @@ def settingsScreen():
     backButton.setFill("gray")
     backText = Text(Point(250,100),"Save and Exit")
     backText.setFill("Black")
-    htpButton = Rectangle(Point(150,400),Point(350,450))
+    htpButton = Rectangle(Point(150,150),Point(350,200))
     htpButton.setFill("Light green")
-    htpText = Text(Point(250,425), "How to Play")
-    settingsObjects = [backButton,backText,htpButton,htpText,defaultColorText,defaultColorEntry,modeText,modeEntry]
-
-
-
-
+    htpText = Text(Point(250,175), "How to Play")
+    title = Text(Point(250,400),"Settings Screen")
+    title.setSize(30)
+    settingsObjects = [backButton,backText,htpButton,htpText,defaultColorText,defaultColorEntry,modeText,modeEntry,title]
 
     with open(settingsPath, 'r') as file:
         data = file.readlines()
@@ -38,42 +39,64 @@ def settingsScreen():
         defaultColorEntry.setText(data[0].replace('\n', ""))
         modeEntry.setText(data[1].replace('\n', ""))
     
-    win.setBackground("light gray")
+    w.setBackground("light gray")
     for o in settingsObjects:
-        o.draw(win)
+        o.draw(w)
     while True:
         try:
-            mouse = win.getMouse()
-            x = int(mouse.getX())
-            y = int(mouse.getY())
-            if (x >= 150) & (x <= 350):
-                if (y>=75) & (y<=125):
-                    buttonClicked = "GoBack"
-                    break
-                if (y>=400) & (y<=450):
-                    buttonClicked = "HTP"
-                    break
+            mouse = w.checkMouse()
+            if mouse:
+                x = int(mouse.getX())
+                y = int(mouse.getY())
+                if (x >= 150) & (x <= 350):
+                    if (y>=75) & (y<=125):
+                        buttonClicked = "GoBack"
+                        break
+                    if (y>=150) & (y<=200):
+                        buttonClicked = "HTP"
+                        break
         except GraphicsError:
-            win.close()
-            print("Window closed prematurely.")
+            w.close()
+            with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+                f.write("True")
             break
     if buttonClicked == "GoBack":
-        clear()
+        clear(w)
         if defaultColorEntry.getText() == "":
             data[0] = "pink\n"
         elif modeEntry.getText() == "":
-            data[1] = "mouse\n"
+            data[1] = "arrows\n"
+        
+        if modeEntry.getText().lower() in ['arrows','mouse']:
+            data[1] = modeEntry.getText().lower()
         else:
-            data[0] = defaultColorEntry.getText() + '\n'
-            data[1] = modeEntry.getText()
+            Text(Point(250,250),f'The mode {modeEntry.getText()} is invalid. Please try again.').draw(w)
+            Text(Point(250,200),'Valid Modes: Arrows, Mouse').draw(w)
+            button = Rectangle(Point(150,75),Point(350,125))
+            button.setFill("gray"), button.draw(w)
+            Text(Point(250,100),'Click here to exit.').draw(w)
+            w.getMouse()
+            clear(w)
+        
+        if defaultColorEntry.getText().lower() in ['pink','orange','red','yellow','green','blue','purple','lime','light green','light blue']:
+            data[0] = defaultColorEntry.getText().lower() + '\n'
+        else:
+            Text(Point(250,250),f'The color {defaultColorEntry.getText()} is invalid. Please try again.').draw(w)
+            Text(Point(250,200),'Valid colors include:\nRed, Orange, Yellow, Green, Blue,\n Purple, Pink, Lime, Light Green, Light Blue').draw(w)
+            button = Rectangle(Point(150,75),Point(350,125))
+            button.setFill("gray"), button.draw(w)
+            Text(Point(250,100),'Click here to exit.').draw(w)
+            w.getMouse()
+            clear(w)
+        
+
         with open(settingsPath, "w") as file:
             file.writelines(data)
-        main()
     if buttonClicked == "HTP":
-        clear()
-        htpScreen()
+        clear(w)
+        htpScreen(w)
 
-def htpScreen():
+def htpScreen(w): 
     backButton = Rectangle(Point(150,75),Point(350,125))
     backButton.setFill("gray")
     backText = Text(Point(250,100),"Save and Exit")
@@ -90,11 +113,11 @@ def htpScreen():
     f"Thank you for playing, and have fun!"
 )
     instructions, backButton= Text(Point(250,300),howToPlay), Rectangle(Point(150,75),Point(350,125))
-    backButton.setFill("gray"), instructions.setSize(10), win.setBackground("light yellow"), backText.setText("Go Back")
-    instructions.draw(win), backButton.draw(win), backText.draw(win)
+    backButton.setFill("gray"), instructions.setSize(10), w.setBackground("light yellow"), backText.setText("Go Back")
+    instructions.draw(w), backButton.draw(w), backText.draw(w)
     while True:
         try:
-            mouse = win.checkMouse()
+            mouse = w.checkMouse()
             if mouse != None: 
                 x = int(mouse.getX())
                 y = int(mouse.getY())
@@ -103,15 +126,16 @@ def htpScreen():
                         buttonClicked = "GoBackSettings"
                         break
         except GraphicsError:
-            win.close()
-            print("Window closed prematurely.")
+            w.close()
+            with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+                f.write("True")
             break
     if buttonClicked == "GoBackSettings":
-        clear()
+        clear(w)
         backText.setText("Save and Exit")
-        settingsScreen()
+        settingsScreen(w)
 
-def choiceScreen():
+def choiceScreen(w): 
     ## Initialize all local variables
     fsbox, tpbox, ffabox = Rectangle(Point(25,100),Point(165,400)), Rectangle(Point(180,100),Point(320,400)), Rectangle(Point(335,100),Point(475,400))
     fsbutton,tpbutton,ffabutton = Rectangle(Point(35,130),Point(155,180)), Rectangle(Point(190,130),Point(310,180)), Rectangle(Point(345,130),Point(465,180))
@@ -128,29 +152,31 @@ def choiceScreen():
     objects = [fsbox,tpbox,ffabox,fsbutton,tpbutton,ffabutton,fsbtext,tpbtext,ffabtext,fstitle,tptitle,ffatitle,fsimage,tpimage,ffaimage,helpButton,helpText,bigtitle]
     
     # Actual code
-    win.setBackground("light green")
+    w.setBackground("light green")
     for o in objects:
-        o.draw(win)
+        o.draw(w)
     while gamemode == "":
         try:
-            mouse = win.getMouse()
-            x = int(mouse.getX())
-            y = int(mouse.getY())
-            if (y >= 130) & (y <= 180):
-                if (x>=35) & (x<=155):
-                    gamemode = "FS"
-                if (x>=190) & (x<=310):
-                    gamemode = "TP"
-                if (x>=345) & (x<=465):
-                    gamemode = "FFA"
-            if (y>=25) & (y<=75):
-                if(x>=150) & (x<=350):
-                    gamemode = "HELP"
+            mouse = w.checkMouse()
+            if mouse:
+                x = int(mouse.getX())
+                y = int(mouse.getY())
+                if (y >= 130) & (y <= 180):
+                    if (x>=35) & (x<=155):
+                        gamemode = 1
+                    if (x>=190) & (x<=310):
+                        gamemode = 2
+                    if (x>=345) & (x<=465):
+                        gamemode = 3
+                if (y>=25) & (y<=75):
+                    if(x>=150) & (x<=350):
+                        gamemode = 4
         except GraphicsError:
-            win.close()
-            print("Window closed prematurely.")
+            w.close()
+            with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+                f.write("True")
             break
-    clear()
+    clear(w)
     return gamemode
 
 def reloadSettings():
@@ -168,41 +194,58 @@ def reloadSettings():
             file.writelines(data)
     return data
 
-def clear(): # clears the window
-    for item in win.items[:]:
-        item.undraw()
+def clear(w): # clears the window
+    try:
+        for item in w.items[:]:
+            item.undraw()
+    except:
+        pass
 
-def countToStart(gamemode,mode,difficulty,arrows): # function for countdown before start
-    gamemodeText,modetext = Text(Point(250,200),f'Current Gamemode: {gamemode}'),Text(Point(250,100),f'Controls: {mode}')
-    gamemodeText.setSize(20),modetext.setSize(20)
-    gamemodeText.draw(win),modetext.draw(win)
-    startCountdownText = Text(Point(250,300), "Begin in ... 5")
-    startCountdownText.setSize(30)
-    startCountdownText.setFill("Black")
-    if difficulty != None:
-        difficultytext = Text(Point(250,150),f'Current Difficulty: {difficulty}')
-        difficultytext.setSize(20), difficultytext.draw(win)
-    startCountdownText.draw(win)
-    sleep(1)
-    startCountdownText.setText("Begin in ... 4")
-    sleep(1)
-    startCountdownText.setText("Begin in ... 3")
-    sleep(1)
-    startCountdownText.setText("Begin in ... 2")
-    sleep(1)
-    startCountdownText.setText("Begin in ... 1")
-    sleep(1)
-    startCountdownText.setText("GO!")
-    sleep(1)
-    clear()
-    timerSquare.draw(win)
-    timerCountdown.draw(win)
-    target.draw(win)
-    for i in arrows:
-        arrows[i].draw(win)
-    startCountdownText.setText("Begin in ... 5")
+def countToStart(gamemode,mode,difficulty,arrows,w): # function for countdown before start
+    try:
+        target = Image(Point(250,250), (os.path.join(os.path.dirname(__file__),"images/target.png")))
+        gamemodeText,modetext = Text(Point(250,200),f'Current Gamemode: {gamemode}'),Text(Point(250,100),f'Controls: {mode}')
+        gamemodeText.setSize(20),modetext.setSize(20)
+        gamemodeText.draw(w),modetext.draw(w)
+        startCountdownText = Text(Point(250,300), "Begin in ... 5")
+        startCountdownText.setSize(30)
+        startCountdownText.setFill("Black")
+        timerSquare = Rectangle(Point(450,450), Point(500,500))
+        timerSquare.setFill("Brown")
+        timerCountdown = Text(Point(470.5, 470.5), "0")
+        timerCountdown.setFill("White")
+        timerCountdown.setSize(25)
+        if difficulty != None:
+            difficultytext = Text(Point(250,150),f'Current Difficulty: {difficulty}')
+            difficultytext.setSize(20), difficultytext.draw(w)
+        startCountdownText.draw(w)
+        sleep(1)
+        startCountdownText.setText("Begin in ... 4")
+        sleep(1)
+        startCountdownText.setText("Begin in ... 3")
+        sleep(1)
+        startCountdownText.setText("Begin in ... 2")
+        sleep(1)
+        startCountdownText.setText("Begin in ... 1")
+        sleep(1)
+        startCountdownText.setText("GO!")
+        sleep(1)
+        clear(w)
+        timerSquare.draw(w)
+        timerCountdown.draw(w)
+        if gamemode != "Free-For-All":
+            target.draw(w)
+            for i in arrows:
+                arrows[i].draw(w)
+        startCountdownText.setText("Begin in ... 5")
+    except GraphicsError:
+        w.close()
+        with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+            f.write("True")
+    gc.collect()
+    return timerCountdown
 
-def pointCalculation(click,difficulty,wind,score):
+def pointCalculation(click,difficulty,wind,score,w):
     x,y = round(click.x,0), round(click.y,0)
     if difficulty != None:
         if difficulty in "EMH":
@@ -228,8 +271,8 @@ def pointCalculation(click,difficulty,wind,score):
                 y += ((wind[0]) * 20)
 
     spotClicked = Point(x,y)
-    spotClicked.setFill("black")
-    spotClicked.draw(win) # this line ends the code that may be replaced
+    point = Circle(spotClicked,2)
+    point.setFill("black"), point.setOutline("white"), point.draw(w)
     targetCenter = target.getAnchor()
     targetX = targetCenter.getX()
     targetY = targetCenter.getY()
@@ -273,7 +316,8 @@ def pointCalculation(click,difficulty,wind,score):
         print("You missed!")
     return score
 
-def freeShootRound(mode,currentPOS,score): # 1 round of game, Free shoot gamemode
+def freeShootRound(mode,currentPOS,score,timerCountdown,w): # 1 round of game, Free shoot gamemode
+    timeout = 5
     timerCountdown.setText(timeout) # sets timer text to timeout time 
     # sleep(0.5)
     start_time = time.time()
@@ -282,19 +326,19 @@ def freeShootRound(mode,currentPOS,score): # 1 round of game, Free shoot gamemod
         currentPOS = Point(250,250)
     if mode == "arrows":
         crosshair = Image(currentPOS,(os.path.join(os.path.dirname(__file__),"images/crosshair.png")))
-        crosshair.draw(win)
+        crosshair.draw(w)
     elif mode == "mouse":
         click = None
 
     while time.time() - start_time < timeout:
         if mode == "mouse": # ISSUE LIES SOMEWHERE IN HERE
-            click = win.checkMouse()
+            click = w.checkMouse()
             remaining_time = int(timeout - (time.time() - start_time))
             timerCountdown.setText(f"{remaining_time}")
             if click:
                 break
         elif mode == "arrows":
-            key = win.checkKey()
+            key = w.checkKey()
             # sleep(0.1)
             remaining_time = int(timeout - (time.time() - start_time))
             timerCountdown.setText(f"{remaining_time}")
@@ -313,14 +357,14 @@ def freeShootRound(mode,currentPOS,score): # 1 round of game, Free shoot gamemod
     
     if mode == "mouse":
         if click:
-            score = pointCalculation(click,difficulty,wind,score)
+            score = pointCalculation(click,difficulty,wind,score,w)
         else:
             print("Program was not clicked in time")
     
     if mode == "arrows":
         if key == "space":
             currentPOS = crosshair.getAnchor()
-            score = pointCalculation(currentPOS,difficulty,wind,score)
+            score = pointCalculation(currentPOS,difficulty,wind,score,w)
             
         else:
             print("Spacebar was not hit in time")
@@ -332,54 +376,168 @@ def freeShootRound(mode,currentPOS,score): # 1 round of game, Free shoot gamemod
             }
     return passData
 
-def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Target Practice gamemode
+def targetPracticeRound(difficulty,mode,currentPOS,score,timerCountdown,w): # 1 round of game, Target Practice gamemode
     # local variables
-    wind_speed, wind_direction = 0,0
-    windbox = Rectangle(Point(450,350),Point(500,450))
-    windbox.setFill("light blue")
-    windText = Text(Point(475,425),"Wind:")
-    directionsText = ["N","NE","E","SE","S","SW","W","NW"]
+    try:
+        wind_speed, wind_direction = 0,0
+        timeout = 5
+        windbox = Rectangle(Point(450,350),Point(500,450))
+        windbox.setFill("light blue")
+        windText = Text(Point(475,425),"Wind:")
+        directionsText = ["N","NE","E","SE","S","SW","W","NW"]
+        if currentPOS == None:
+            currentPOS = Point(250,250)
+        crosshair = Image(currentPOS,(os.path.join(os.path.dirname(__file__),"images/crosshair.png")))
+        if mode == "arrows":
+            crosshair.draw(w)
+        elif mode == "mouse":
+            click = None
+        directions = [
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windN.png"))),
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windNE.png"))),
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windE.png"))),
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windSE.png"))),
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windS.png"))),
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windSW.png"))),
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windW.png"))),
+            Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windNW.png")))
+            ]
+
+        if difficulty == "E": # Easy
+            wind_speed = randint(0,3)
+            wind_direction = randint(0,7) # 0 = North, 7 = NW
+            if randint(1,5) == 1: # 10% chance of being cut in half
+                if wind_speed != 0:
+                    wind_speed /= 2
+        
+        windText.setText(f'Wind:\n{wind_speed} {directionsText[wind_direction]}')
+        windbox.draw(w), directions[wind_direction].draw(w), windText.draw(w)
+        timerCountdown.setText(timeout) # sets timer text to timeout time 
+        sleep(0.5)
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            if mode == "mouse":
+                click = w.checkMouse()
+                remaining_time = int(timeout - (time.time() - start_time))
+                timerCountdown.setText(f"{remaining_time}")
+                sleep(0.1)
+                if click:
+                    break
+            elif mode == "arrows":
+                key = w.checkKey()
+                sleep(0.1)
+                remaining_time = int(timeout - (time.time() - start_time))
+                timerCountdown.setText(f"{remaining_time}")
+                if key == "Right":
+                    crosshair.move(10,0)
+                elif key == "Left":
+                    crosshair.move(-10,0)
+                elif key == "Up":
+                    crosshair.move(0,10)
+                elif key == "Down":
+                    crosshair.move(0,-10)   
+                elif key == "space":
+                    print("Shot taken!")
+                    crosshair.undraw()
+                    break
+        if mode == "mouse":
+            if click:
+                wind = [wind_speed,directionsText[wind_direction]]
+                score = pointCalculation(click,difficulty,wind,score,w)
+            else:
+                print("Program was not clicked in time")
+            passData = {
+                "centerPOS": Point(250,250),
+                "score": score
+                }
+            return passData
+        if mode == "arrows":
+            if key == "space":
+                currentPOS = crosshair.getAnchor()
+                wind = [wind_speed,directionsText[wind_direction]]
+                score = pointCalculation(currentPOS,difficulty,wind,score,w)
+                passData = {
+                "centerPOS": currentPOS,
+                "score": score
+                }
+                return passData
+            else:
+                print("Spacebar was not hit in time")
+                crosshair.undraw()
+        directions[wind_direction].undraw(), windText.undraw()
+    except GraphicsError:
+        w.close()
+        with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+            f.write("True")
+        passData = {"centerPOS": Point(250,250),"score": 0} 
+
+def ffaRound(mode,timerCountdown,w): # 1 round of game, Free For All gamemode
+    # initialize variables
+    targets = []
+    coordinates = []
+    active_coordinates = []
+    timeout = 30
+    score = 0
+    currentPOS = Point(250,250)
+    nextTarget = 0
+    for _ in range(0,500):
+        # randomize 500 tuples of coordinates and put them in a list
+        d = (randint(25,475),randint(25,475))
+        if d[0] >= 425 and d[1] >= 425:
+            d = (d[0]-25,d[1]-25)
+        coordinates.append(d)
+        # 500 targets for screen, initialize them and put them all in a list
+        t = Image(Point(d[0],d[1]), (os.path.join(os.path.dirname(__file__),"images/target_small.png")))
+        targets.append(t)
+    for t in range(0,30):
+        # draw first 30 targets, leave last 470 as extras
+        targets[t].draw(w)
+        active_coordinates.append(coordinates[t]) # put first 30 coordinates into an active list
+        nextTarget += 1
     if currentPOS == None:
         currentPOS = Point(250,250)
     crosshair = Image(currentPOS,(os.path.join(os.path.dirname(__file__),"images/crosshair.png")))
     if mode == "arrows":
-        crosshair.draw(win)
+        crosshair.draw(w)
     elif mode == "mouse":
         click = None
-    directions = [
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windN.png"))),
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windNE.png"))),
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windE.png"))),
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windSE.png"))),
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windS.png"))),
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windSW.png"))),
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windW.png"))),
-        Image(Point(475,375),(os.path.join(os.path.dirname(__file__),"images/windNW.png")))
-        ]
-
-    if difficulty == "E": # Easy
-        wind_speed = randint(0,3)
-        wind_direction = randint(0,7) # 0 = North, 7 = NW
-        if randint(1,5) == 1: # 10% chance of being cut in half
-            if wind_speed != 0:
-                wind_speed /= 2
     
-    windText.setText(f'Wind:\n{wind_speed} {directionsText[wind_direction]}')
-    windbox.draw(win), directions[wind_direction].draw(win), windText.draw(win)
-    timerCountdown.setText(timeout) # sets timer text to timeout time 
-    sleep(0.5)
+    print(f'ACTIVE COORDINATES: {active_coordinates}')
+
+
     start_time = time.time()
     while time.time() - start_time < timeout:
         if mode == "mouse":
-            click = win.checkMouse()
+            click = w.checkMouse()
             remaining_time = int(timeout - (time.time() - start_time))
             timerCountdown.setText(f"{remaining_time}")
             sleep(0.1)
             if click:
-                break
+                print("Shot taken!") # troubleshooting
+                for c in active_coordinates: # checks to see if a target was clicked
+                    targetX,targetY = c[0],c[1]
+                    clickX,clickY = click.getX(),click.getY()
+                    distance = sqrt((clickX - targetX)**2 + (clickY - targetY)**2)
+                    radius = 25
+                    distance_ratio = distance/radius
+                    if distance_ratio <= 1.0:
+                        score += 1
+                        print(f"A target was clicked at ({targetX,targetY}). +1 POINT\n\n")
+                        for _ in range(0,(randint(1,3))): # checks how many new targets should be drawn. can be 1-3
+                            try:                                
+                                targets[nextTarget].draw(w)
+                                active_coordinates.append(coordinates[nextTarget])
+                                nextTarget += 1
+                            except IndexError:
+                                print("No more targets") # troubleshooting
+                                pass
+                        coords = (targetX,targetY)
+                        i = coordinates.index(coords)
+                        targets[i].undraw()
+                        active_coordinates.pop(active_coordinates.index(c))
+                        coordinates.pop(i),targets.pop(i)
         elif mode == "arrows":
-            key = win.checkKey()
-            sleep(0.1)
+            key = w.checkKey()
             remaining_time = int(timeout - (time.time() - start_time))
             timerCountdown.setText(f"{remaining_time}")
             if key == "Right":
@@ -391,59 +549,113 @@ def targetPracticeRound(difficulty,mode,currentPOS,score): # 1 round of game, Ta
             elif key == "Down":
                 crosshair.move(0,-10)   
             elif key == "space":
-                print("Shot taken!")
-                crosshair.undraw()
-                break
-    if mode == "mouse":
-        if click:
-            wind = [wind_speed,directionsText[wind_direction]]
-            score = pointCalculation(click,difficulty,wind,score)
-        else:
-            print("Program was not clicked in time")
-        passData = {
-            "centerPOS": Point(250,250),
-            "score": score
-            }
-        return passData
-    if mode == "arrows":
-        if key == "space":
-            currentPOS = crosshair.getAnchor()
-            wind = [wind_speed,directionsText[wind_direction]]
-            score = pointCalculation(currentPOS,difficulty,wind,score)
-            passData = {
-            "centerPOS": currentPOS,
-            "score": score
-            }
-            return passData
-        else:
-            print("Spacebar was not hit in time")
-            crosshair.undraw()
-    directions[wind_direction].undraw(), windText.undraw()
+                print("Shot taken!") # troubleshooting
+                Point(crosshair.getAnchor().getX(),crosshair.getAnchor().getY()).draw(w)
+                if randint(1,2) == 2:
+                    try:
+                        print("Drawing new target!") # troubleshooting
+                        targets[nextTarget].draw(w)
+                        if mode == "arrows":
+                            crosshair.undraw(), crosshair.draw(w)
+                        nextTarget += 1
+                    except IndexError:
+                        print("No more targets") # troubleshooting
+                        pass
+    return score
+    
+def scoreScreen(passData,w):
+    scorebox = Rectangle(Point(125,125),Point(375,175))
+    scorebox.setFill("yellow"),scorebox.draw(w)
+    scoretext = Text(Point(250,150),f'Your Final Score is: {passData["score"]}')
+    scoretext.setSize(15),scoretext.draw(w)
+    returnbutton = Rectangle(Point(200,25),Point(300,75))
+    returnbutton.setFill("lime"), returnbutton.draw(w)
+    returntext = Text(Point(250,50),f'Return to Menu')
+    returntext.setSize(10), returntext.draw(w)
+    buttonClicked = 0
+    while buttonClicked == 0:
+        try:
+            mouse = w.checkMouse()
+            if mouse:
+                x = int(mouse.getX())
+                y = int(mouse.getY())
+                if (x >= 200) & (x <= 300):
+                    if (y >= 25) & (y <= 75):
+                        buttonClicked = 1 # go back to menu
+        except GraphicsError:
+            w.close()
+            with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+                f.write("True")
+            buttonClicked = -1 # win closed prematurely
 
-def main(): # main method
-    # initialize everything
+def crashScreen(w):
+    w.setBackground("Lime")
+    instructions = Text(Point(250,250), "This is a crash screen. \nThe last time the game was run, it was closed unexpecetedly. \nYou can ignore this screen, this is just to make sure the game runs properly. \nThanks for playing!") 
+    instructions.setSize(10)
+    backButton = Rectangle(Point(150,75),Point(350,125))
+    backButton.setFill("gray")
+    backText = Text(Point(250,100),"Exit")
+    backText.setFill("Black")
+    crashObjects = [instructions,backButton,backText]
+    for o in crashObjects:
+        o.draw(w)
+    clicked = False
+    while clicked == False:
+        try:
+            mouse = w.checkMouse()
+            if mouse:
+                x = int(mouse.getX())
+                y = int(mouse.getY())
+                if (x >= 150) & (x <= 350):
+                    if (y>=75) & (y<=125):
+                        buttonClicked = "GoBack"
+                        clear(w)
+                        clicked = True
+        except GraphicsError:
+            w.close()
+            with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+                f.write("True")
+            clicked = True
+
+def main(): # main method, uses win
     playing = True
+    w = GraphWin("Archery Game", 500, 500)  
+    w.setCoords(0,0,500,500)
+    # trying to fix crash error
+    try:
+        debugPath = os.path.join(os.path.dirname(__file__), 'debug.mike') 
+        with open(debugPath, 'r') as file:
+            crash = file.readlines()
+        if crash == ['True']:
+            crashScreen(w)
+            settingsScreen(w) 
+            with open(debugPath, 'w') as file:
+                file.writelines('False')
+    except:
+        pass
 
     while playing:
         time.sleep(0.5)
+        # initialize everything
         data = reloadSettings()
         arrows = dict()
         rounds = 5
-        try:
-            openingText, startButton, startText, settingsButton, settingsText, quitButton, quitText = Text(Point(250,450), "Theresa's Archery Game"), Rectangle(Point(150,150),Point(350,250)), Text(Point(250, 200), "Click to Start"),Rectangle(Point(150,75),Point(350,125)),Text(Point(250,100),"Settings/How-To-Play"),Rectangle(Point(450,50),Point(501,-1)),Text(Point(475,25),"Quit")
-            openingText.setSize(30),startButton.setFill("light green"),startText.setFill("Black"),settingsButton.setFill("gray"),settingsText.setFill("Black"),quitButton.setFill("red")
-        except:
-            pass
+        openingText, startButton, startText, settingsButton, settingsText, quitButton, quitText = Text(Point(250,450), "Theresa's Archery Game"), Rectangle(Point(150,150),Point(350,250)), Text(Point(250, 200), "Click to Start"),Rectangle(Point(150,75),Point(350,125)),Text(Point(250,100),"Settings/How-To-Play"),Rectangle(Point(450,50),Point(501,-1)),Text(Point(475,25),"Quit")
+        openingText.setSize(30),startButton.setFill("light green"),startText.setFill("Black"),settingsButton.setFill("gray"),settingsText.setFill("Black"),quitButton.setFill("red")
         for i in range(1,rounds+1):
             arrows[i] = Image(Point(i * 20,480), (os.path.join(os.path.dirname(__file__),"images/arrow.png")))
         try:
-            win.setBackground(data[0].replace('\n', ""))
+            w.setBackground(data[0].replace('\n', ""))
             mode = data[1]
         except:
-            data = ["pink\n","mouse\n"]
+            data = ["pink\n","arrows\n"]
             with open(os.path.join(os.path.dirname(__file__), 'settings.mike'), "w") as file:
                 file.writelines(data)
-        openingText.draw(win), startButton.draw(win), startText.draw(win),settingsButton.draw(win), settingsText.draw(win), quitButton.draw(win), quitText.draw(win)
+        try:
+            openingText.draw(w), startButton.draw(w), startText.draw(w),settingsButton.draw(w), settingsText.draw(w), quitButton.draw(w), quitText.draw(w)
+        except:
+            playing = False
+            break
         buttonClicked = 0
         center = Point(250,250)
         passData = {
@@ -454,72 +666,75 @@ def main(): # main method
         # checks what option the user chooses and sends them to desired option
         while buttonClicked == 0:
             try:
-                mouse = win.getMouse()
-                x = int(mouse.getX())
-                y = int(mouse.getY())
-                if (x >= 150) & (x <= 350):
-                    if (y >= 150) & (y <= 250):
-                        buttonClicked = 1 # start
-                    elif (y>=75) & (y<=125):
-                        buttonClicked = 2 # settings
-                elif (x >=450):
-                    if (y <= 50):
-                        buttonClicked = 3 # quit
-                
-            except GraphicsError:
-                win.close()
-                buttonClicked = -1 # window closed
-                print("Window closed prematurely.")
-
-        # checks button that was clicked and sends user to correct gamemode
-        if buttonClicked == 1: # start
-            clear()
-            gamemode = choiceScreen() 
-            if gamemode == "HELP":
-                htpScreen()
-            elif gamemode == "FS":
-                countToStart("Free Shoot", mode.capitalize(),None,arrows)
-                for i in range(1,rounds+1):
-                    passData = freeShootRound(mode,passData['centerPOS'],passData['score'])
-                    arrows[i].undraw() 
-            elif gamemode == "TP":
-                countToStart("Target Practice",mode.capitalize(),"Easy",arrows)
-                for i in range(1,rounds+1):
-                    passData = targetPracticeRound("E",mode,passData['centerPOS'],passData["score"])
-                    arrows[i].undraw()
-            elif gamemode == "FFA":
-                countToStart("Free-For-All",mode.capitalize(),None,arrows)
-            
-            sleep(0.5)
-            scorebox = Rectangle(Point(125,125),Point(375,175))
-            scorebox.setFill("yellow"),scorebox.draw(win)
-            scoretext = Text(Point(250,150),f'Your Final Score is: {passData['score']}')
-            scoretext.setSize(15),scoretext.draw(win)
-            returnbutton = Rectangle(Point(200,25),Point(300,75))
-            returnbutton.setFill("lime"), returnbutton.draw(win)
-            returntext = Text(Point(250,50),f'Return to Menu')
-            returntext.setSize(10), returntext.draw(win)
-            buttonClicked = 0
-            while buttonClicked == 0:
-                try:
-                    mouse = win.getMouse()
+                mouse = w.checkMouse()
+                if mouse:
                     x = int(mouse.getX())
                     y = int(mouse.getY())
-                    if (x >= 200) & (x <= 300):
-                        if (y >= 25) & (y <= 75):
-                            buttonClicked = 1 # go back to menu
-                except GraphicsError:
-                    win.close()
-                    print("Window closed prematurely.")
-                    buttonClicked = -1 # win closed prematurely
-            clear()
+                    if (x >= 150) & (x <= 350):
+                        if (y >= 150) & (y <= 250):
+                            buttonClicked = 1 # start
+                        elif (y>=75) & (y<=125):
+                            buttonClicked = 2 # settings
+                    elif (x >=450):
+                        if (y <= 50):
+                            buttonClicked = 3 # quit
+                            break
+                
+            except GraphicsError:
+                w.close()
+                buttonClicked = -1 
+                passData = {
+                    "centerPOS": center,
+                    "score": 0
+                } 
+                with open(os.path.join(os.path.dirname(__file__), 'debug.mike'), "w") as f:
+                    f.write("True")
+        # checks button that was clicked and sends user to correct gamemode
+        if buttonClicked == 1: # start
+            clear(w)
+            gamemode = choiceScreen(w) 
+            if gamemode == 4:
+                htpScreen(w)
+            elif gamemode == 1:
+                timerCountdown = countToStart("Free Shoot", mode.capitalize(),None,arrows,w)
+                for i in range(1,rounds+1):
+                    try:
+                        passData = freeShootRound(mode,passData['centerPOS'],passData['score'],timerCountdown,w)
+                        arrows[i].undraw() 
+                    except TypeError:
+                        playing = False
+                        break
+            elif gamemode == 2:
+                timerCountdown = countToStart("Target Practice",mode.capitalize(),"Easy",arrows,w)
+                for i in range(1,rounds+1):
+                    try:
+                        passData = targetPracticeRound("E",mode,passData['centerPOS'],passData["score"],timerCountdown,w)
+                        arrows[i].undraw()
+                    except TypeError:
+                        playing = False
+                        break
+            elif gamemode == 3:
+                timerCountdown = countToStart("Free-For-All",mode.capitalize(),None,arrows,w)
+                score = ffaRound(mode,timerCountdown,w)
+                passData = {
+                    "centerPOS": center,
+                    "score": int(score)
+                } 
+            
+            sleep(0.5)
+            if gamemode != 4 and playing == True:
+                scoreScreen(passData,w)
+            clear(w)
+            gc.collect()
 
         elif buttonClicked == 2: # settings
-            clear()
-            settingsScreen()
+            clear(w)
+            settingsScreen(w)
+            gc.collect()
         elif buttonClicked == 3: # quit
-            win.close()
+            w.close()
             playing = False
+            gc.collect()
     
 # run the program!
 if __name__ == "__main__":
