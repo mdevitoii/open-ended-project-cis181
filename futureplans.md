@@ -15,10 +15,6 @@
 # Gamemodes:
 ~~Free Shoot: shoot target with no wind or anything~~
 ~~Target Practice: shoot with wind, try to get largest score~~
-~~Easy: Only light wind~~
-    - Medium: Stronger wind
-    - Hard: Strongest wind
-    - Extreme: Strong wind and Target Moves
 ~~Free For All: multiple targets, try to click as many as you can within 30 seconds~~
 # Some other things:
 ~~Need to change "HELP" and "FFA" to int values~~
@@ -27,13 +23,13 @@
 --------------------------------------------------------------------------------------------
 
 # Need to Have:
-- switching options screen to Joe style
-- NO GLOBALS!
-- NO BREAKS!
-- adding Medium and Hard modes for Target Practice
-- Removing all print statements, replacing with drawn text
-- Exception handle window closing at all points in program
-- COMMENTS!
+~~NO GLOBALS!~~
+~~NO BREAKS!~~
+~~adding Medium and Hard modes for Target Practice~~
+~~Removing all print statements, replacing with drawn text~~
+~~COMMENTS!~~
+~~make gc only run after round~~
+~~fix arrows on ffa~~
 
 # Nice to Have:
 - music
